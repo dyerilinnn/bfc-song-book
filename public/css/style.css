@@ -89,18 +89,44 @@ button, input, textarea, select { font: inherit; color: inherit; }
   background: var(--ink);
   color: var(--paper);
   border: 1px solid var(--ink);
-  border-radius: 0;
+  border-radius: 24px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: background 120ms linear, color 120ms linear;
 }
-.btn:hover { background: var(--paper); color: var(--ink); }
-.btn.ghost { background: var(--paper); color: var(--ink); }
-.btn.ghost:hover { background: var(--ink); color: var(--paper); }
-.btn.quiet { background: transparent; border-color: var(--rule); color: var(--soft); }
-.btn.quiet:hover { border-color: var(--ink); color: var(--ink); background: transparent; }
-.btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+.btn:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.btn.ghost {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.btn.ghost:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn.quiet {
+  background: transparent;
+  border-color: var(--rule);
+  color: var(--soft);
+}
+
+.btn.quiet:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+  background: transparent;
+}
+
+.btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 
 /* ---------- page shell ---------- */
 
