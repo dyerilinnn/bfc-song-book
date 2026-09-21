@@ -56,7 +56,12 @@ button, input, textarea, select { font: inherit; color: inherit; }
 }
 
 .brand { display: flex; align-items: center; gap: 12px; }
-.brand svg { display: block; width: 20px; height: 40px; }
+.brand img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
 .brand span {
   font-weight: 700;
   font-size: 15px;
