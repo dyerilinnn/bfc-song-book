@@ -81,18 +81,18 @@ window.Chords = (function () {
   ];
 
   const KEYS = [
-    { key: 'C',      family: ['C',  'Dm',  'Em',  'F',  'G',  'Am',  'Bdim'] },
-    { key: 'D\u266D', family: ['D\u266D', 'E\u266Dm', 'Fm', 'G\u266D', 'A\u266D', 'B\u266Dm', 'Cdim'] },
-    { key: 'D',      family: ['D',  'Em',  'F\u266Fm', 'G',  'A',  'Bm',  'C\u266Fdim'] },
-    { key: 'E\u266D', family: ['E\u266D', 'Fm', 'Gm', 'A\u266D', 'B\u266D', 'Cm', 'Ddim'] },
-    { key: 'E',      family: ['E',  'F\u266Fm', 'G\u266Fm', 'A',  'B',  'C\u266Fm', 'D\u266Fdim'] },
-    { key: 'F',      family: ['F',  'Gm',  'Am',  'B\u266D', 'C',  'Dm',  'Edim'] },
-    { key: 'F\u266F', family: ['F\u266F', 'G\u266Fm', 'A\u266Fm', 'B', 'C\u266F', 'D\u266Fm', 'E\u266Fdim'] },
-    { key: 'G',      family: ['G',  'Am',  'Bm',  'C',  'D',  'Em',  'F\u266Fdim'] },
-    { key: 'A\u266D', family: ['A\u266D', 'B\u266Dm', 'Cm', 'D\u266D', 'E\u266D', 'Fm', 'Gdim'] },
-    { key: 'A',      family: ['A',  'Bm',  'C\u266Fm', 'D',  'E',  'F\u266Fm', 'G\u266Fdim'] },
-    { key: 'B\u266D', family: ['B\u266D', 'Cm', 'Dm', 'E\u266D', 'F',  'Gm',  'Adim'] },
-    { key: 'B',      family: ['B',  'C\u266Fm', 'D\u266Fm', 'E', 'F\u266F', 'G\u266Fm', 'A\u266Fdim'] }
+    { key: 'C',  family: ['C',  'Dm',  'Em',  'F',  'G',  'Am',  'Bdim'] },
+    { key: 'C#', family: ['C#', 'D#m', 'Fm',  'F#', 'G#', 'A#m', 'Cdim'] },
+    { key: 'D',  family: ['D',  'Em',  'F#m', 'G',  'A',  'Bm',  'C#dim'] },
+    { key: 'D#', family: ['D#', 'Fm',  'Gm',  'G#', 'A#', 'Cm',  'Ddim'] },
+    { key: 'E',  family: ['E',  'F#m', 'G#m', 'A',  'B',  'C#m', 'D#dim'] },
+    { key: 'F',  family: ['F',  'Gm',  'Am',  'A#', 'C',  'Dm',  'Edim'] },
+    { key: 'F#', family: ['F#', 'G#m', 'A#m', 'B',  'C#', 'D#m', 'E#dim'] },
+    { key: 'G',  family: ['G',  'Am',  'Bm',  'C',  'D',  'Em',  'F#dim'] },
+    { key: 'G#', family: ['G#', 'A#m', 'Cm',  'C#', 'D#', 'Fm',  'Gdim'] },
+    { key: 'A',  family: ['A',  'Bm',  'C#m', 'D',  'E',  'F#m', 'G#dim'] },
+    { key: 'A#', family: ['A#', 'Cm',  'Dm',  'D#', 'F',  'Gm',  'Adim'] },
+    { key: 'B',  family: ['B',  'C#m', 'D#m', 'E',  'F#', 'G#m', 'A#dim'] }
   ];
 
   return {
