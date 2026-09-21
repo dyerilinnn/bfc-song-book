@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Song Book</title>
+<meta name="description" content="Song lyrics written with number chords.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="brand" href="#/" aria-label="Song Book home">
+    <!-- G clef -->
+    <svg viewBox="0 0 24 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M13.2 44.6c-3.6.9-6.9-1-7.4-4.1-.4-2.6 1.4-5 4.1-5.4 2.6-.4 5 1.1 5.5 3.6.9 4.7-1.6 6.3-4.5 7M12 1.6C9 5 6.6 9 6.3 13.2c-.3 3.8 1.2 6.3 3.4 9.4 2.1 3 4.6 6 5.3 9.6.8 4.2-.4 8-2.3 10.4M12 1.6c2.3 1.5 3.6 4.4 3.3 7.6-.4 4.4-3.7 7.6-7.2 10.4C4.9 22.1 2 24.9 2 28.6c0 3.9 3.3 6.9 7.3 6.9 4.6 0 8-3.3 8-7.6 0-3.6-2.6-6.4-6-6.4"/>
+    </svg>
+    <span>Song Book</span>
+  </a>
+  <div class="nav-links" id="nav-links"></div>
+</nav>
+
+<main id="view"></main>
+
+<!-- Footnote player, fixed to the bottom of every screen -->
+<footer class="player" id="player">
+  <button class="player-play" id="player-play" disabled aria-label="Play"></button>
+  <div class="player-meta">
+    <div class="t" id="player-title">Nothing playing</div>
+    <div class="s" id="player-singer"></div>
+  </div>
+  <div class="player-bar">
+    <input type="range" id="player-range" min="0" max="100" value="0" step="0.1" disabled aria-label="Seek">
+    <span class="player-time" id="player-time">0:00 / 0:00</span>
+    <span class="player-time" id="player-note"></span>
+  </div>
+  <audio id="audio" preload="none"></audio>
+</footer>
+
+<script src="/js/chords.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
