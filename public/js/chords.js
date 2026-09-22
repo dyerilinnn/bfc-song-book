@@ -1,10 +1,4 @@
-/* Turns sheet text into chord rows sitting above lyric rows, and holds the
-   data for the number chord chart. Shared by the reader, the admin editor
-   preview, and the chart page. */
-
 window.Chords = (function () {
-
-  // "How [1]great is our [4]God"  ->  { chords: "    1            4", words: "How great is our God" }
   function parseLine(raw) {
     const marks = [];
     let words = '';
@@ -26,8 +20,8 @@ window.Chords = (function () {
 
     let chords = '';
     marks.forEach(function (m) {
-      // Keep at least one space between neighbouring chords.
-      if (chords.length > m.at) chords += ' ';
+      // Keep at least two spaces between neighbouring chords.
+      if (chords.length > m.at) chords += '  ';
       else chords = chords.padEnd(m.at, ' ');
       chords += m.text;
     });
@@ -132,34 +126,6 @@ window.Chords = (function () {
     return html || '<p class="empty">This song has no lyrics yet.</p>';
   }
 
-  const DEGREES = [
-    { number: '1', quality: 'major' },
-    { number: '2', quality: 'minor' },
-    { number: '3', quality: 'minor' },
-    { number: '4', quality: 'major' },
-    { number: '5', quality: 'major' },
-    { number: '6', quality: 'minor' },
-    { number: '7', quality: 'diminished' }
-  ];
-
-  const KEYS = [
-    { key: 'C',  family: ['C',  'Dm',  'Em',  'F',  'G',  'Am',  'Bdim'] },
-    { key: 'C#', family: ['C#', 'D#m', 'Fm',  'F#', 'G#', 'A#m', 'Cdim'] },
-    { key: 'D',  family: ['D',  'Em',  'F#m', 'G',  'A',  'Bm',  'C#dim'] },
-    { key: 'D#', family: ['D#', 'Fm',  'Gm',  'G#', 'A#', 'Cm',  'Ddim'] },
-    { key: 'E',  family: ['E',  'F#m', 'G#m', 'A',  'B',  'C#m', 'D#dim'] },
-    { key: 'F',  family: ['F',  'Gm',  'Am',  'A#', 'C',  'Dm',  'Edim'] },
-    { key: 'F#', family: ['F#', 'G#m', 'A#m', 'B',  'C#', 'D#m', 'E#dim'] },
-    { key: 'G',  family: ['G',  'Am',  'Bm',  'C',  'D',  'Em',  'F#dim'] },
-    { key: 'G#', family: ['G#', 'A#m', 'Cm',  'C#', 'D#', 'Fm',  'Gdim'] },
-    { key: 'A',  family: ['A',  'Bm',  'C#m', 'D',  'E',  'F#m', 'G#dim'] },
-    { key: 'A#', family: ['A#', 'Cm',  'Dm',  'D#', 'F',  'Gm',  'Adim'] },
-    { key: 'B',  family: ['B',  'C#m', 'D#m', 'E',  'F#', 'G#m', 'A#dim'] }
-  ];
-
-
-  // Pulls the 11-character video ID out of any YouTube URL shape: watch?v=,
-  // youtu.be/, /embed/, /shorts/, /live/, with or without extra query params.
   function youtubeId(input) {
     if (!input) return null;
     let url;
@@ -189,6 +155,31 @@ window.Chords = (function () {
 
     return null;
   }
+
+  const DEGREES = [
+    { number: '1', quality: 'major' },
+    { number: '2', quality: 'minor' },
+    { number: '3', quality: 'minor' },
+    { number: '4', quality: 'major' },
+    { number: '5', quality: 'major' },
+    { number: '6', quality: 'minor' },
+    { number: '7', quality: 'diminished' }
+  ];
+
+  const KEYS = [
+    { key: 'C',  family: ['C',  'Dm',  'Em',  'F',  'G',  'Am',  'Bdim'] },
+    { key: 'C#', family: ['C#', 'D#m', 'Fm',  'F#', 'G#', 'A#m', 'Cdim'] },
+    { key: 'D',  family: ['D',  'Em',  'F#m', 'G',  'A',  'Bm',  'C#dim'] },
+    { key: 'D#', family: ['D#', 'Fm',  'Gm',  'G#', 'A#', 'Cm',  'Ddim'] },
+    { key: 'E',  family: ['E',  'F#m', 'G#m', 'A',  'B',  'C#m', 'D#dim'] },
+    { key: 'F',  family: ['F',  'Gm',  'Am',  'A#', 'C',  'Dm',  'Edim'] },
+    { key: 'F#', family: ['F#', 'G#m', 'A#m', 'B',  'C#', 'D#m', 'E#dim'] },
+    { key: 'G',  family: ['G',  'Am',  'Bm',  'C',  'D',  'Em',  'F#dim'] },
+    { key: 'G#', family: ['G#', 'A#m', 'Cm',  'C#', 'D#', 'Fm',  'Gdim'] },
+    { key: 'A',  family: ['A',  'Bm',  'C#m', 'D',  'E',  'F#m', 'G#dim'] },
+    { key: 'A#', family: ['A#', 'Cm',  'Dm',  'D#', 'F',  'Gm',  'Adim'] },
+    { key: 'B',  family: ['B',  'C#m', 'D#m', 'E',  'F#', 'G#m', 'A#dim'] }
+  ];
 
   return {
     parseLine: parseLine,
