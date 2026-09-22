@@ -47,23 +47,85 @@ window.Chords = (function () {
     });
   }
 
+  function shortenLines(text, maxLength) {
+    const lines = String(text || '').replace(/\r\n?/g, '\n').split('\n');
+    const result = [];
+
+    lines.forEach(function (line) {
+      if (!line.trim() || isSection(line)) {
+        result.push(line);
+        return;
+      }
+
+      if (line.length <= maxLength) {
+        result.push(line);
+        return;
+      }
+
+      // Split the line into words while keeping [chord] attached
+      const tokens = line.match(/\[[^\]]+\]\S*|\S+/g) || [];
+
+      let current = '';
+
+      tokens.forEach(function (token) {
+        const candidate = current
+          ? current + ' ' + token
+          : token;
+
+        if (current && candidate.length > maxLength) {
+          result.push(current);
+          current = token;
+        } else {
+          current = candidate;
+        }
+      });
+
+      if (current) {
+        result.push(current);
+      }
+    });
+
+    return result.join('\n');
+  }
+
   // Renders the whole sheet body as HTML.
   function render(text) {
-    const lines = String(text || '').replace(/\r\n?/g, '\n').split('\n');
+    const maxLength = window.innerWidth <= 540 ? 30 : 9999;
+    const shortened = shortenLines(text, 38);
+
+    const lines = String(shortened || '')
+      .replace(/\r\n?/g, '\n')
+      .split('\n');
+
     let html = '';
 
     lines.forEach(function (raw) {
-      if (!raw.trim()) { html += '<div class="line blank"></div>'; return; }
+      if (!raw.trim()) {
+        html += '<div class="line blank"></div>';
+        return;
+      }
 
       if (isSection(raw)) {
-        html += '<div class="section-label">' + escapeHtml(raw.trim()) + '</div>';
+        html += '<div class="section-label">' +
+          escapeHtml(raw.trim()) +
+          '</div>';
         return;
       }
 
       const parsed = parseLine(raw);
+
       html += '<div class="line">';
-      if (parsed.hasChords) html += '<div class="chords">' + escapeHtml(parsed.chords) + '</div>';
-      html += '<div class="words">' + escapeHtml(parsed.words) + '</div>';
+
+      if (parsed.hasChords) {
+        html += '<div class="chords">' +
+          escapeHtml(parsed.chords) +
+          '</div>';
+      }
+
+      html += '<div class="words">' +
+        escapeHtml(parsed.words) +
+        '</div>';
+
       html += '</div>';
     });
 
@@ -95,10 +157,44 @@ window.Chords = (function () {
     { key: 'B',  family: ['B',  'C#m', 'D#m', 'E',  'F#', 'G#m', 'A#dim'] }
   ];
 
+
+  // Pulls the 11-character video ID out of any YouTube URL shape: watch?v=,
+  // youtu.be/, /embed/, /shorts/, /live/, with or without extra query params.
+  function youtubeId(input) {
+    if (!input) return null;
+    let url;
+    try { url = new URL(String(input).trim()); }
+    catch (e) { return null; }
+
+    const host = url.hostname.toLowerCase().replace(/^www\.|^m\.|^music\./, '');
+    const idPattern = /^[\w-]{11}$/;
+
+    if (host === 'youtu.be') {
+      const id = url.pathname.slice(1).split('/')[0];
+      return idPattern.test(id) ? id : null;
+    }
+
+    if (host === 'youtube.com') {
+      if (url.pathname === '/watch') {
+        const id = url.searchParams.get('v');
+        return id && idPattern.test(id) ? id : null;
+      }
+      let m = url.pathname.match(/^\/embed\/([\w-]{11})/);
+      if (m) return m[1];
+      m = url.pathname.match(/^\/shorts\/([\w-]{11})/);
+      if (m) return m[1];
+      m = url.pathname.match(/^\/live\/([\w-]{11})/);
+      if (m) return m[1];
+    }
+
+    return null;
+  }
+
   return {
     parseLine: parseLine,
     render: render,
     escapeHtml: escapeHtml,
+    youtubeId: youtubeId,
     DEGREES: DEGREES,
     KEYS: KEYS
   };

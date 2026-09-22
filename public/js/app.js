@@ -17,66 +17,71 @@
   }
 
   /* ---------- player ---------- */
+  // A fixed footnote. When a song has a YouTube link, an embedded player
+  // loads inside it, paused, so nothing plays until the visitor presses
+  // play in the video itself. No iframe is created at all otherwise, so
+  // nothing loads or plays in the background.
 
   const player = {
-    el: document.getElementById('player'),
-    audio: document.getElementById('audio'),
-    playBtn: document.getElementById('player-play'),
-    title: document.getElementById('player-title'),
-    singer: document.getElementById('player-singer'),
-    range: document.getElementById('player-range'),
-    time: document.getElementById('player-time'),
-    note: document.getElementById('player-note'),
+  videoBox: document.getElementById('player-video'),
+  title: document.getElementById('player-title'),
+  singer: document.getElementById('player-singer'),
+  note: document.getElementById('player-note'),
+  openLink: document.getElementById('player-open'),
 
-    load: function (song) {
-      this.title.textContent = song ? song.title : 'Nothing playing';
-      this.singer.textContent = song && song.singer ? song.singer : '';
-      const src = song && song.audioUrl ? song.audioUrl : '';
-      if (this.audio.src !== location.origin + src || !src) {
-        this.audio.pause();
-        this.audio.removeAttribute('src');
-        if (src) this.audio.src = src;
-      }
-      this.playBtn.disabled = !src;
-      this.note.textContent = src ? '' : 'No audio for this song';
-      this.range.value = 0;
-      this.range.disabled = !src;
-      this.time.textContent = '0:00 / 0:00';
-      this.setIcon(false);
-    },
+  load: function (song) {
+    this.title.textContent = song ? song.title : 'Nothing playing';
+    this.singer.textContent = song && song.singer ? song.singer : '';
 
-    setIcon: function (playing) {
-      this.playBtn.innerHTML = playing
-        ? '<svg viewBox="0 0 12 14" fill="currentColor" aria-hidden="true"><rect x="0" y="0" width="4" height="14"/><rect x="8" y="0" width="4" height="14"/></svg>'
-        : '<svg viewBox="0 0 12 14" fill="currentColor" aria-hidden="true"><path d="M0 0l12 7-12 7z"/></svg>';
-      this.playBtn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
-    },
+    // Remove the previous iframe
+    this.videoBox.innerHTML = '';
 
-    toggle: function () {
-      if (!this.audio.src) return;
-      if (this.audio.paused) this.audio.play(); else this.audio.pause();
+    const id = song && song.youtubeId
+    ? song.youtubeId 
+    : (song && song.youtubeUrl ? Chords.youtubeId(song.youtubeUrl) : null);
+
+    if (id) {
+      const iframe = document.createElement('iframe');
+
+      iframe.src =
+        'https://www.youtube-nocookie.com/embed/' +
+        encodeURIComponent(id) +
+        '?rel=0&playsinline=1';
+
+      iframe.title = song.title + ' video';
+
+      iframe.width = '100%';
+      iframe.height = '180';
+      iframe.frameBorder = '0';
+
+      iframe.allow =
+        'accelerometer; autoplay; clipboard-write; encrypted-media; ' +
+        'gyroscope; picture-in-picture; web-share';
+
+      iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+      iframe.loading = 'lazy';
+      iframe.allowFullscreen = true;
+
+      this.videoBox.appendChild(iframe);
+      this.videoBox.classList.add('has-video');
+
+      this.note.textContent = '';
+
+      this.openLink.href = song.youtubeUrl;
+      this.openLink.classList.remove('is-hidden');
     }
-  };
+    
+    else {
+      this.videoBox.classList.remove('has-video');
 
-  function clock(sec) {
-    if (!isFinite(sec)) return '0:00';
-    const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
-    return m + ':' + String(s).padStart(2, '0');
+      this.note.textContent =
+        song ? 'No video for this song' : '';
+
+      this.openLink.classList.add('is-hidden');
+      this.openLink.removeAttribute('href');
+    }
   }
-
-  player.playBtn.addEventListener('click', function () { player.toggle(); });
-  player.audio.addEventListener('play', function () { player.setIcon(true); });
-  player.audio.addEventListener('pause', function () { player.setIcon(false); });
-  player.audio.addEventListener('timeupdate', function () {
-    const d = player.audio.duration || 0;
-    player.range.value = d ? (player.audio.currentTime / d) * 100 : 0;
-    player.time.textContent = clock(player.audio.currentTime) + ' / ' + clock(d);
-  });
-  player.range.addEventListener('input', function () {
-    const d = player.audio.duration || 0;
-    if (d) player.audio.currentTime = (player.range.value / 100) * d;
-  });
+};
 
   /* ---------- nav ---------- */
 
@@ -228,12 +233,16 @@
     catch (e) { view.innerHTML = '<div class="wrap"><p class="notice">' + Chords.escapeHtml(e.message) + '</p></div>'; return; }
 
     const body = songs.length
-      ? '<ul class="index">' + songs.map(function (s) {
-          return '<li><a href="#/song/' + s._id + '">' +
-            '<span class="idx-title">' + Chords.escapeHtml(s.title) + '</span>' +
-            '<span class="idx-leader"></span>' +
-            '<span class="idx-singer">' + Chords.escapeHtml(s.singer || '\u2014') + '</span></a></li>';
-        }).join('') + '</ul>' +
+  ? '<ul class="index">' + songs.map(function (s) {
+      const href = state.admin
+        ? '#/admin/edit/' + s._id
+        : '#/song/' + s._id;
+
+      return '<li><a href="' + href + '">' +
+        '<span class="idx-title">' + Chords.escapeHtml(s.title) + '</span>' +
+        '<span class="idx-leader"></span>' +
+        '<span class="idx-singer">' + Chords.escapeHtml(s.singer || '\u2014') + '</span></a></li>';
+    }).join('') + '</ul>' +
         '<div class="list-meta"><span>' + songs.length + ' song' + (songs.length === 1 ? '' : 's') + '</span><span>Title \u00b7 Singer</span></div>'
       : '<div class="empty"><p>The book is empty. The admin adds the first song.</p></div>';
 
@@ -316,7 +325,7 @@
 
     view.innerHTML =
       '<div class="wrap"><header class="page-head"><h1>Admin</h1>' +
-      '<p>Add a song, or open one to change its words, chords or audio.</p></header>' +
+      '<p>Add a song, or open one to change its words, chords or video.</p></header>' +
         '<div class="admin-bar">' + searchBoxHTML('Find a song from our list') +
           '<a class="btn" href="#/admin/new">+ Add a song</a></div>' +
         (songs.length
@@ -334,15 +343,24 @@
   };
 
   views.editor = async function (id) {
-    if (!state.admin) { location.hash = '#/login'; return; }
+  console.log('EDITOR CALLED:', id);
+  console.log('ADMIN STATUS:', state.admin);
 
-    let song = { title: '', singer: '', originalKey: '', bpm: '', lyrics: '', audioUrl: '' };
+  if (!state.admin) {
+    console.log('NOT ADMIN — REDIRECTING');
+    location.hash = '#/login';
+    return;
+  }
+
+    let song = { title: '', singer: '', originalKey: '', bpm: '', lyrics: '', youtubeUrl: '' };
     if (id) {
       try { song = await api('/songs/' + id); }
       catch (e) { view.innerHTML = '<div class="wrap"><p class="notice">' + Chords.escapeHtml(e.message) + '</p></div>'; return; }
     }
 
-    const v = Chords.escapeHtml;
+    const v = function (value) {
+      return Chords.escapeHtml(value == null ? '' : String(value));
+    };
 
     view.innerHTML =
       '<div class="wrap wide"><header class="page-head"><h1>' + (id ? 'Edit song' : 'Add a song') + '</h1>' +
@@ -370,9 +388,9 @@
           '<div class="field"><label>Preview</label><div class="preview"><div class="sheet-body" id="preview"></div></div></div>' +
         '</div>' +
 
-        '<div class="field"><label for="f-audio">MP3 <span class="hint">optional</span></label>' +
-          '<input id="f-audio" type="file" accept="audio/*">' +
-          (song.audioUrl ? '<label class="hint"><input type="checkbox" id="f-remove"> Remove the audio that is on this song</label>' : '') +
+        '<div class="field"><label for="f-youtube">YouTube link <span class="hint">optional</span></label>' +
+          '<input id="f-youtube" type="text" inputmode="url" value="' + v(song.youtubeUrl) + '" placeholder="https://www.youtube.com/watch?v=\u2026">' +
+          '<span class="hint" id="f-youtube-check"></span>' +
         '</div>' +
 
         '<div id="form-msg"></div>' +
@@ -401,25 +419,37 @@
       paint();
     });
 
+    const ytInput = document.getElementById('f-youtube');
+    const ytCheck = document.getElementById('f-youtube-check');
+
+    function checkYoutube() {
+      const val = ytInput.value.trim();
+      if (!val) { ytCheck.textContent = ''; return; }
+      ytCheck.textContent = Chords.youtubeId(val) ? '\u2713 Link recognized' : 'Doesn\u2019t look like a YouTube link yet';
+    }
+    ytInput.addEventListener('input', checkYoutube);
+    checkYoutube();
+
     document.getElementById('song-form').addEventListener('submit', async function (e) {
       e.preventDefault();
       const msg = document.getElementById('form-msg');
       msg.innerHTML = '';
 
-      const data = new FormData();
-      data.append('title', document.getElementById('f-title').value);
-      data.append('singer', document.getElementById('f-singer').value);
-      data.append('originalKey', document.getElementById('f-key').value);
-      data.append('bpm', document.getElementById('f-bpm').value);
-      data.append('lyrics', ta.value);
-
-      const file = document.getElementById('f-audio').files[0];
-      if (file) data.append('audio', file);
-      const rm = document.getElementById('f-remove');
-      if (rm && rm.checked) data.append('removeAudio', 'true');
+      const payload = {
+        title: document.getElementById('f-title').value,
+        singer: document.getElementById('f-singer').value,
+        originalKey: document.getElementById('f-key').value,
+        bpm: document.getElementById('f-bpm').value,
+        lyrics: ta.value,
+        youtubeUrl: ytInput.value
+      };
 
       try {
-        const saved = await api('/songs' + (id ? '/' + id : ''), { method: id ? 'PUT' : 'POST', body: data });
+        const saved = await api('/songs' + (id ? '/' + id : ''), {
+          method: id ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
         location.hash = '#/song/' + saved._id;
       } catch (err) {
         msg.innerHTML = '<p class="notice">' + Chords.escapeHtml(err.message) + '</p>';
