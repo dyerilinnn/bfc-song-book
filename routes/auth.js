@@ -3,7 +3,6 @@ const Admin = require('../models/Admin');
 
 const router = express.Router();
 
-// Who am I? Used by the front end to decide whether to show admin controls.
 router.get('/me', (req, res) => {
   res.json({ admin: Boolean(req.session.adminId), username: req.session.username || null });
 });

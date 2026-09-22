@@ -1,9 +1,7 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
 const Song = require('../models/Song');
 const requireAdmin = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const { extractYouTubeId } = require('../utils/youtube');
 
 const router = express.Router();
 
@@ -22,7 +20,7 @@ router.get('/', async (req, res) => {
     : {};
 
   const songs = await Song.find(filter)
-    .select('title singer originalKey bpm audioUrl')
+    .select('title singer originalKey bpm youtubeUrl youtubeId')
     .sort({ title: 1 })
     .limit(q ? 12 : 500)
     .lean();
@@ -36,40 +34,52 @@ router.get('/:id', async (req, res) => {
   res.json(song);
 });
 
-function fields(body) {
-  return {
+// Pulls the plain fields off the body and resolves the YouTube link.
+// Throws a plain Error with a message meant to be shown to the admin.
+function fieldsFrom(body) {
+  const data = {
     title:       String(body.title || '').trim(),
     singer:      String(body.singer || '').trim(),
     originalKey: String(body.originalKey || '').trim(),
     bpm:         String(body.bpm || '').trim(),
-    lyrics:      String(body.lyrics || '')
+    lyrics:      String(body.lyrics || ''),
+    youtubeUrl:  '',
+    youtubeId:   ''
   };
+
+  const rawLink = String(body.youtubeUrl || '').trim();
+  if (rawLink) {
+    const id = extractYouTubeId(rawLink);
+    if (!id) throw new Error('That doesn\u2019t look like a valid YouTube link. Paste the full video URL.');
+    data.youtubeUrl = rawLink;
+    data.youtubeId = id;
+  }
+
+  return data;
 }
 
-router.post('/', requireAdmin, upload.single('audio'), async (req, res) => {
-  const data = fields(req.body);
+router.post('/', requireAdmin, async (req, res) => {
+  let data;
+  try { data = fieldsFrom(req.body); }
+  catch (err) { return res.status(400).json({ error: err.message }); }
+
   if (!data.title) return res.status(400).json({ error: 'A song needs a title.' });
-  if (req.file) data.audioUrl = '/uploads/' + req.file.filename;
 
   const song = await Song.create(data);
   res.status(201).json(song);
 });
 
-router.put('/:id', requireAdmin, upload.single('audio'), async (req, res) => {
+router.put('/:id', requireAdmin, async (req, res) => {
   const song = await Song.findById(req.params.id).catch(() => null);
   if (!song) return res.status(404).json({ error: 'No song with that address.' });
 
-  Object.assign(song, fields(req.body));
-  if (!song.title) return res.status(400).json({ error: 'A song needs a title.' });
+  let data;
+  try { data = fieldsFrom(req.body); }
+  catch (err) { return res.status(400).json({ error: err.message }); }
 
-  if (req.file) {
-    removeAudio(song.audioUrl);
-    song.audioUrl = '/uploads/' + req.file.filename;
-  } else if (req.body.removeAudio === 'true') {
-    removeAudio(song.audioUrl);
-    song.audioUrl = '';
-  }
+  if (!data.title) return res.status(400).json({ error: 'A song needs a title.' });
 
+  Object.assign(song, data);
   await song.save();
   res.json(song);
 });
@@ -77,14 +87,7 @@ router.put('/:id', requireAdmin, upload.single('audio'), async (req, res) => {
 router.delete('/:id', requireAdmin, async (req, res) => {
   const song = await Song.findByIdAndDelete(req.params.id).catch(() => null);
   if (!song) return res.status(404).json({ error: 'No song with that address.' });
-  removeAudio(song.audioUrl);
   res.json({ deleted: true });
 });
-
-function removeAudio(url) {
-  if (!url) return;
-  const file = path.join(__dirname, '..', 'uploads', path.basename(url));
-  fs.promises.unlink(file).catch(() => {});
-}
 
 module.exports = router;
