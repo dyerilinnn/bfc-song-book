@@ -79,10 +79,3 @@ public/js/app.js     router, views, search, editor, player
 public/css/style.css the whole visual system
 uploads/             MP3s land here (served at /uploads)
 ```
-
-## Before putting it online
-
-- Set a long random `SESSION_SECRET` and a real `ADMIN_PASSWORD`, then re-run `npm run seed`.
-- Run behind HTTPS so the session cookie can be `secure` (`NODE_ENV=production`).
-- `uploads/` is local disk. On a host with an ephemeral filesystem, move audio to
-  S3 or Cloudinary and keep the URL in `audioUrl`.
