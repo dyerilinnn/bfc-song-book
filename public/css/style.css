@@ -480,10 +480,17 @@ table.chart.keys-table tbody tr.original td { background: var(--wash); }
   line-height: 1;
 
   cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.player-toggle:hover {
-  background: var(--wash);
+.player-toggle img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  display: block;
 }
 
 .player-video {
