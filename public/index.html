@@ -23,20 +23,44 @@
 
 <main id="view"></main>
 
-<!-- Footnote player, fixed to the bottom of every screen. Holds the YouTube
-     video for whichever song is open; empty and inert everywhere else. -->
+<!-- Footnote player, fixed to the bottom of every screen and collapsible. -->
 <footer class="player" id="player">
-  <div class="player-video" id="player-video">
-    <div class="player-video-empty" id="player-video-empty" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16v12H4z"/><path d="M9 9.5l6 2.5-6 2.5z"/></svg>
+
+  <button
+    class="player-toggle"
+    id="player-toggle"
+    type="button"
+    aria-label="Collapse player"
+    aria-expanded="true"
+  >⌄</button>
+
+  <div class="player-content">
+
+    <div class="player-video" id="player-video">
+      <div class="player-video-empty" id="player-video-empty" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M4 6h16v12H4z"/>
+          <path d="M9 9.5l6 2.5-6 2.5z"/>
+        </svg>
+      </div>
     </div>
+
+    <div class="player-meta">
+      <div class="t" id="player-title">Nothing playing</div>
+      <div class="s" id="player-singer"></div>
+    </div>
+
+    <div class="player-note" id="player-note"></div>
+
+    <a
+      class="player-open"
+      id="player-open"
+      href="#"
+      target="_blank"
+      rel="noopener"
+    >Open in YouTube ↗</a>
+
   </div>
-  <div class="player-meta">
-    <div class="t" id="player-title">Nothing playing</div>
-    <div class="s" id="player-singer"></div>
-  </div>
-  <div class="player-note" id="player-note"></div>
-  <a class="player-open" id="player-open" href="#" target="_blank" rel="noopener">Open in YouTube ↗</a>
 </footer>
 
 <script src="/js/chords.js"></script>
