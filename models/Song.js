@@ -1,10 +1,23 @@
 const mongoose = require('mongoose');
 
+// One row of the keys table: a singer's name (or the literal "Original")
+// paired with the key that song sits in for them.
+const keyRowSchema = new mongoose.Schema(
+  {
+    singer: { type: String, required: true, trim: true },
+    key:    { type: String, trim: true, default: '' }
+  },
+  { _id: false }
+);
+
 const songSchema = new mongoose.Schema(
   {
     title:       { type: String, required: true, trim: true },
     singer:      { type: String, trim: true, default: '' },
-    originalKey: { type: String, trim: true, default: '' },
+    // Replaces the old single originalKey string. The first row is always
+    // { singer: 'Original', key: '...' }; any further rows pair a name from
+    // the team roster (see models/Vocalist.js) with the key they use.
+    keys:        { type: [keyRowSchema], default: function () { return [{ singer: 'Original', key: '' }]; } },
     bpm:         { type: String, trim: true, default: '' },
     // Raw sheet text. Chords live inline in square brackets:
     //   "How [1]great is our [4]God"
