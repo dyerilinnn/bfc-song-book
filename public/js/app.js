@@ -7,12 +7,6 @@
     username: null
   };
 
-  /*
-   * Every time the URL changes, this number increases.
-   * Async views compare their version with the current version
-   * before changing the page. This prevents an old API request
-   * from overwriting a newer page.
-   */
   let routeVersion = 0;
 
   /* ---------- API ---------- */
@@ -63,7 +57,14 @@
         collapsed
       );
 
-      this.toggle.textContent = collapsed ? '⌃' : '⌄';
+      this.toggle.replaceChildren(
+        Object.assign(document.createElement('img'), {
+            src: collapsed
+                ? 'images/arrowhead-up.png'
+                : 'images/arrowhead-down.png',
+            alt: collapsed ? 'Expand' : 'Collapse'
+        })
+      );
 
       this.toggle.setAttribute(
         'aria-expanded',
