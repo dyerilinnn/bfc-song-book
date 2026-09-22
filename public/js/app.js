@@ -23,65 +23,87 @@
   // nothing loads or plays in the background.
 
   const player = {
-  videoBox: document.getElementById('player-video'),
-  title: document.getElementById('player-title'),
-  singer: document.getElementById('player-singer'),
-  note: document.getElementById('player-note'),
-  openLink: document.getElementById('player-open'),
+    el: document.getElementById('player'),
+    toggle: document.getElementById('player-toggle'),
 
-  load: function (song) {
-    this.title.textContent = song ? song.title : 'Nothing playing';
-    this.singer.textContent = song && song.singer ? song.singer : '';
+    videoBox: document.getElementById('player-video'),
+    title: document.getElementById('player-title'),
+    singer: document.getElementById('player-singer'),
+    note: document.getElementById('player-note'),
+    openLink: document.getElementById('player-open'),
 
-    // Remove the previous iframe
-    this.videoBox.innerHTML = '';
+    collapsed: false,
 
-    const id = song && song.youtubeId
-    ? song.youtubeId 
-    : (song && song.youtubeUrl ? Chords.youtubeId(song.youtubeUrl) : null);
+    setCollapsed: function (collapsed) {
+      this.collapsed = collapsed;
+      this.el.classList.toggle('is-collapsed', collapsed);
+      this.toggle.textContent = collapsed ? '⌃' : '⌄';
+      this.toggle.setAttribute(
+        'aria-expanded',
+        collapsed ? 'false' : 'true'
+      );
+      this.toggle.setAttribute(
+        'aria-label',
+        collapsed ? 'Expand player' : 'Collapse player'
+      );
+    },
 
-    if (id) {
-      const iframe = document.createElement('iframe');
+    load: function (song) {
+      this.title.textContent = song ? song.title : 'Nothing playing';
+      this.singer.textContent = song && song.singer ? song.singer : '';
 
-      iframe.src =
-        'https://www.youtube-nocookie.com/embed/' +
-        encodeURIComponent(id) +
-        '?rel=0&playsinline=1';
+      this.videoBox.innerHTML = '';
 
-      iframe.title = song.title + ' video';
+      const id = song && song.youtubeId
+        ? song.youtubeId
+        : (song && song.youtubeUrl
+          ? Chords.youtubeId(song.youtubeUrl)
+          : null);
 
-      iframe.width = '100%';
-      iframe.height = '180';
-      iframe.frameBorder = '0';
+      if (id) {
+        const iframe = document.createElement('iframe');
 
-      iframe.allow =
-        'accelerometer; autoplay; clipboard-write; encrypted-media; ' +
-        'gyroscope; picture-in-picture; web-share';
+        iframe.src =
+          'https://www.youtube-nocookie.com/embed/' +
+          encodeURIComponent(id) +
+          '?rel=0&playsinline=1';
 
-      iframe.referrerPolicy = 'strict-origin-when-cross-origin';
-      iframe.loading = 'lazy';
-      iframe.allowFullscreen = true;
+        iframe.title = song.title + ' video';
+        iframe.width = '100%';
+        iframe.height = '180';
+        iframe.frameBorder = '0';
 
-      this.videoBox.appendChild(iframe);
-      this.videoBox.classList.add('has-video');
+        iframe.allow =
+          'accelerometer; autoplay; clipboard-write; encrypted-media; ' +
+          'gyroscope; picture-in-picture; web-share';
 
-      this.note.textContent = '';
+        iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+        iframe.loading = 'lazy';
+        iframe.allowFullscreen = true;
 
-      this.openLink.href = song.youtubeUrl;
-      this.openLink.classList.remove('is-hidden');
+        this.videoBox.appendChild(iframe);
+        this.videoBox.classList.add('has-video');
+
+        this.note.textContent = '';
+
+        this.openLink.href = song.youtubeUrl;
+        this.openLink.classList.remove('is-hidden');
+      }
+      else {
+        this.videoBox.classList.remove('has-video');
+
+        this.note.textContent =
+          song ? 'No video for this song' : '';
+
+        this.openLink.classList.add('is-hidden');
+        this.openLink.removeAttribute('href');
+      }
     }
-    
-    else {
-      this.videoBox.classList.remove('has-video');
+  };
 
-      this.note.textContent =
-        song ? 'No video for this song' : '';
-
-      this.openLink.classList.add('is-hidden');
-      this.openLink.removeAttribute('href');
-    }
-  }
-};
+  player.toggle.addEventListener('click', function () {
+    player.setCollapsed(!player.collapsed);
+  });
 
   /* ---------- nav ---------- */
 
